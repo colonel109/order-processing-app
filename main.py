@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src.ui.main_window import MainWindow
+from windows.main_window import MainWindow
 from PySide6.QtWidgets import QApplication
 import sys
 

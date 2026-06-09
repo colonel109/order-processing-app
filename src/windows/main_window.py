@@ -7,8 +7,10 @@ from PySide6.QtSql import QSqlTableModel
 
 from src.order_processor import OrderProcessor
 from src.config_loader import ConfigLoader
-from src.db_handler import db_connector
+from database.connector import connector
 from src.execute_query import execute_query
+from src.windows import database_window
+from windows.database_window import DatabaseWindow
 
 
 class MainWindow(QMainWindow):
@@ -18,7 +20,7 @@ class MainWindow(QMainWindow):
         self.db_path = db_path
 
         # Kết nối tới database
-        self.connector = db_connector(db_path=db_path)
+        self.connector = connector(db_path=db_path)
 
         # Cửa sổ database
         self.db_window = None
@@ -92,6 +94,7 @@ class MainWindow(QMainWindow):
         self.open_config_act.triggered.connect(self.get_config)
         self.fetch_order_act.triggered.connect(self.fetch_order_data)
         self.remove_orders_act.triggered.connect(self.delete_order_data)
+        self.open_database_act.triggered.connect(self.open_db_window)
 
     def get_order_file(self):
         filters = "Tệp Excel (*.xlsx; *.xls);; Tệp Csv (*.csv);; Tất cả các tệp (*)"
@@ -143,3 +146,7 @@ class MainWindow(QMainWindow):
             """
         )
         self.model.select()
+
+    def open_db_window(self):
+        self.db_window = DatabaseWindow(session=self.connector)
+        self.db_window.show()

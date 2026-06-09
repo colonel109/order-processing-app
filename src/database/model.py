@@ -45,13 +45,14 @@ class Product(Base):
 
 class ComboDetail(Base):
     __tablename__ = 'combo_detail'
-    combo_variant_key = Column(Integer, ForeignKey('combo_variant.combo_variant_key'), primary_key=True)
-    combo_composition_key = Column(Integer, primary_key=True)
-    product_code = Column(String, ForeignKey('product.product_code'), primary_key=True)
+    combo_detail_key = Column(Integer, primary_key=True)
+    combo_variant_key = Column(Integer, ForeignKey('combo_variant.combo_variant_key'), nullable=False)
+    combo_composition_key = Column(Integer, nullable=False)
+    product_code = Column(String, ForeignKey('product.product_code'), nullable=False)
     product_price = Column(Numeric, nullable=False)
     product_quantity = Column(Numeric, nullable=False)
-    created_date = Column(String)
-    updated_date = Column(String)
+    created_date = Column(DateTime)
+    updated_date = Column(DateTime)
 
     combo_variant_link = relationship('ComboVariant', back_populates='combo_detail_link')
     product_link = relationship('Product', back_populates='combo_detail_link')
