@@ -7,10 +7,9 @@ from PySide6.QtSql import QSqlTableModel
 
 from src.order_processor import OrderProcessor
 from src.config_loader import ConfigLoader
-from database.connector import connector
+from src.database.connector import connector
 from src.execute_query import execute_query
-from src.windows import database_window
-from windows.database_window import DatabaseWindow
+from src.windows.database_window import DatabaseWindow
 
 
 class MainWindow(QMainWindow):

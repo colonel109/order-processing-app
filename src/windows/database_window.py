@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QTableView, QVBoxLayout, QHBoxLayout
 from PySide6.QtCore import QSize
 
-from database.model import ComboDetail
+from src.database.model import ComboDetail
 from src.models.product_model import ViewModel
 from src.database.model import Product, ProductType, Combo, Variant, ComboVariant
 
