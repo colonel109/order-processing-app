@@ -36,7 +36,8 @@ class ProductType(Base):
 
 class Product(Base):
     __tablename__ = 'product'
-    product_code = Column(String, primary_key=True)
+    product_key = Column(Integer, primary_key=True)
+    product_code = Column(String, unique=True)
     product_name = Column(String, unique=True)
     product_type_key = Column(Integer, ForeignKey('product_type.product_type_key'))
 
@@ -48,7 +49,7 @@ class ComboDetail(Base):
     combo_detail_key = Column(Integer, primary_key=True)
     combo_variant_key = Column(Integer, ForeignKey('combo_variant.combo_variant_key'), nullable=False)
     combo_composition_key = Column(Integer, nullable=False)
-    product_code = Column(String, ForeignKey('product.product_code'), nullable=False)
+    product_key = Column(Integer, ForeignKey('product.product_key'), nullable=False)
     product_price = Column(Numeric, nullable=False)
     product_quantity = Column(Numeric, nullable=False)
     created_date = Column(DateTime)
@@ -60,8 +61,9 @@ class ComboDetail(Base):
 
 class ShopeeOrder(Base):
     __tablename__ = 'shopee_orders'
-
-    order_id = Column(String, primary_key=True)
+    
+    order_key = Column(Integer, primary_key=True)
+    order_id = Column(String)
     package_id = Column(String)
     order_date = Column(DateTime)
     order_status = Column(String)
@@ -85,7 +87,7 @@ class ShopeeOrder(Base):
     combo_weight = Column(Numeric(15, 2))
     total_weight = Column(Numeric(15, 2))
     warehouse_name = Column(String)
-    combo_variation_sku = Column(String, primary_key=True)
+    combo_variation_sku = Column(String)
     combo_variation_name = Column(String)
     owned_by_shopee = Column(String)
     original_price = Column(Numeric(15, 2))
