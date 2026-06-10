@@ -4,7 +4,7 @@ from PySide6.QtGui import QIcon
 
 from src.models.view_only_model import UniveralViewModel 
 from src.database.model import Product, ProductType, Combo, Variant, ComboVariant, ComboDetail
-from src.windows.dialogs.add_items import ProductAddDialog
+from src.windows.dialogs.add_items import ProductAddDialog, ComboVariantAddDialog 
 
 class DatabaseWindow(QMainWindow):
     def __init__(self, session):
@@ -35,13 +35,17 @@ class DatabaseWindow(QMainWindow):
         self.model_product = self.product_manager.create_model()
         self.model_combo = self.combo_manager.create_model()      
         self.model_combo_detail = self.combo_detail_manager.create_model()
+
         # Dialogs
         self.product_add_dlg = None 
+        self.combo_variant_add_dlg = None
+        self.combo_detail_add_dlg = None
         
+        icon = QIcon(r"D:\Projects\order-processing-app\src\static\list-plus.png")
+
         product_area = QVBoxLayout()
         product_toolbar = QHBoxLayout()
         self.add_product_btn = QPushButton()
-        icon = QIcon(r"D:\Projects\order-processing-app\src\static\list-plus.png")
         self.add_product_btn.setIcon(icon)
         self.add_product_btn.setFixedWidth(30)
         product_toolbar.addWidget(self.add_product_btn, alignment=Qt.AlignmentFlag.AlignLeft)
@@ -55,6 +59,12 @@ class DatabaseWindow(QMainWindow):
         # Vùng hiển thị các combo
         combo_area = QVBoxLayout()
         combo_toolbar = QHBoxLayout()
+        self.add_combo_variant_btn = QPushButton()
+        self.add_combo_variant_btn.setIcon(icon)
+        self.add_combo_variant_btn.setFixedWidth(30)
+        combo_toolbar.addWidget(self.add_combo_variant_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.add_combo_variant_btn.pressed.connect(self.add_combo_variant)
+        
         self.combo_view = QTableView()
         combo_area.addLayout(combo_toolbar)
         combo_area.addWidget(self.combo_view)
@@ -84,7 +94,16 @@ class DatabaseWindow(QMainWindow):
     def add_product(self):
         self.product_add_dlg = ProductAddDialog(session=self.session)
         self.product_add_dlg.product_added.connect(self.refresh_product_table)
-        self.product_add_dlg.exec()   
+        self.product_add_dlg.exec()  
+    
+    def add_combo_variant(self):
+        self.combo_variant_add_dlg = ComboVariantAddDialog(
+            session=self.session, 
+            combos=self.combo_manager._unique_combo,
+            variants=self.combo_manager._unique_variant
+        )
+
+        self.combo_variant_add_dlg.exec()
 
     def refresh_product_table(self):
         self.product_manager.refresh_model(self.model_product)
@@ -130,6 +149,10 @@ class ComboData:
     def __init__(self, session, column_names: list):
         self.session = session
         self.column_names = column_names
+        
+        # Biến lưu trữ danh sách phẳng Dict sau khi chế biến để truyền sang Dialog
+        self._unique_combo = [] 
+        self._unique_variant = [] 
 
     def query_data(self):
         return (
@@ -138,14 +161,79 @@ class ComboData:
             .join(Variant, ComboVariant.variant_key == Variant.variant_key)
             .all()
         )
+    
+    def query_unique_combos(self):
+        """Chỉ query duy nhất bảng Combo từ DB"""
+        return self.session.query(Combo).all()
+
+    def query_unique_variants(self):
+        """Chỉ query duy nhất bảng Variant từ DB"""
+        return self.session.query(Variant).all()
 
     def process_data(self):
+        # 1. Làm sạch bộ đệm cũ trước khi nạp mới (Tránh trùng lặp khi bấm refresh)
+        self._unique_combo.clear()
+        self._unique_variant.clear()
+
+        # 2. Chế biến dữ liệu sạch cho Combo
+        for combo in self.query_unique_combos():
+            self._unique_combo.append({
+                "combo_key": combo.combo_key,
+                "combo_name": combo.combo_name
+            })
+
+        # 3. Chế biến dữ liệu sạch cho Variant (Đã bổ sung phần bị thiếu của bạn)
+        for variant in self.query_unique_variants():
+            self._unique_variant.append({
+                "variant_key": variant.variant_key,
+                "variant_name": variant.variant_name
+            })
+            
+        # 4. Trả về kết quả hiển thị bảng QTableView chính ở ngoài cửa sổ
         result = []
         for combo_obj, variant_obj, combo_variant_obj in self.query_data():
             result.append({
                 "combo_variant_key": combo_variant_obj.combo_variant_key,
                 "combo_name": combo_obj.combo_name,
                 "variant_name": variant_obj.variant_name
+            })
+        return result
+
+    def create_model(self):
+        return UniveralViewModel(data=self.process_data(), column_names=self.column_names)
+
+    def refresh_model(self, current_model):
+        current_model.refresh_data(self.process_data())
+
+
+class ComboDetailData:
+    def __init__(self, session, column_names: list):
+        self.session = session
+        self.column_names = column_names
+
+    def query_data(self):
+        return (
+            self.session.query(ComboDetail, ComboVariant, Combo, Variant, Product, ProductType)
+            .join(ComboVariant, ComboDetail.combo_variant_key == ComboVariant.combo_variant_key)
+            .join(Combo, ComboVariant.combo_key == Combo.combo_key)
+            .join(Variant, ComboVariant.variant_key == Variant.variant_key)
+            .join(Product, ComboDetail.product_code == Product.product_code) 
+            .join(ProductType, Product.product_type_key == ProductType.product_type_key)
+            .all()
+        )
+
+    def process_data(self):
+        result = []
+        # Đã thêm đối tượng `cv` (ComboVariant) nhận diện đủ 6 trường dữ liệu unpack từ query_data
+        for detail, cv, combo, variant, product, p_type in self.query_data():
+            result.append({
+                "combo_detail_key": detail.combo_detail_key,
+                "combo_name": combo.combo_name,
+                "variant_name": variant.variant_name,
+                "product_code": product.product_code,
+                "product_name": product.product_name,
+                "product_type_name": p_type.product_type_name,
+                "quantity": detail.quantity
             })
         return result
 
@@ -174,7 +262,7 @@ class ComboDetailData:
 
     def process_data(self):
         result = []
-        for detail, cv, combo, variant, product, p_type in self.query_data():
+        for detail, combo, variant, product, p_type in self.query_data():
             result.append({
                 "combo_detail_key": detail.combo_detail_key,
                 "combo_name": combo.combo_name,

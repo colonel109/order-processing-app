@@ -1,0 +1,4 @@
+Dialog của bảng product cần chỉnh sửa lại điều kiện lưu: Đã strip chuỗi text nhưng database vẫn chấp nhận chuỗi rỗng, cần điều kiện khắt khe hơn
+Làm mờ nút Lưu khi vừa mở dialog, sau khi dữ liệu nhập vào đủ điều kiện mới chấp nhận ghi vào database.
+
+Chưa hoàn thành phần thêm combo vào database
