@@ -9,7 +9,7 @@ from src.order_processor import OrderProcessor
 from src.config_loader import ConfigLoader
 from src.database.connector import connector
 from src.execute_query import execute_query
-from src.windows.database_window import DatabaseWindow
+from src.windows.database.database_window import DatabaseWindow
 
 
 class MainWindow(QMainWindow):

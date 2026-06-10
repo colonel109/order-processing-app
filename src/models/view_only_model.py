@@ -1,13 +1,10 @@
 from PySide6.QtCore import QAbstractTableModel, Qt
-from jedi.inference.compiled import value
-from sqlalchemy import inspect
 
-class ViewModel(QAbstractTableModel):
-    def __init__(self, data, column_names, headers):
+class UniveralViewModel(QAbstractTableModel):
+    def __init__(self, data, column_names):
         super().__init__()
         self._data = data
         self._column_names = column_names
-        self._headers = headers
 
     def data(self, index, role):
         if role == Qt.ItemDataRole.DisplayRole:
@@ -33,3 +30,8 @@ class ViewModel(QAbstractTableModel):
             return str(section + 1)
 
         return None
+    
+    def refresh_data(self, new_data):
+        self.beginResetModel()
+        self._data = new_data
+        self.endResetModel()

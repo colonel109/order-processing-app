@@ -1,0 +1,193 @@
+from PySide6.QtWidgets import QMainWindow, QWidget, QTableView, QVBoxLayout, QHBoxLayout, QPushButton
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
+
+from src.models.view_only_model import UniveralViewModel 
+from src.database.model import Product, ProductType, Combo, Variant, ComboVariant, ComboDetail
+from src.windows.dialogs.add_items import ProductAddDialog
+
+class DatabaseWindow(QMainWindow):
+    def __init__(self, session):
+        super().__init__()
+
+        self.session = session
+
+        self.setWindowTitle("Cơ sở dữ liệu")
+        self.setMinimumSize(QSize(900, 600))
+
+        # Quản lí data  
+        self.product_manager = ProductData(
+            session=self.session,
+            column_names=["product_code", "product_name", "product_type_name"]
+        )
+
+        self.combo_manager = ComboData(
+            session=self.session,
+            column_names=["combo_variant_key", "combo_name", "variant_name"]
+        )
+        
+        self.combo_detail_manager = ComboDetailData(
+            session=self.session,
+            column_names=["combo_detail_key", "combo_name", "variant_name", "product_code", "product_name", "product_type_name", "quantity"]
+        )
+
+        # Tạo data model với các data manager
+        self.model_product = self.product_manager.create_model()
+        self.model_combo = self.combo_manager.create_model()      
+        self.model_combo_detail = self.combo_detail_manager.create_model()
+        # Dialogs
+        self.product_add_dlg = None 
+        
+        product_area = QVBoxLayout()
+        product_toolbar = QHBoxLayout()
+        self.add_product_btn = QPushButton()
+        icon = QIcon(r"D:\Projects\order-processing-app\src\static\list-plus.png")
+        self.add_product_btn.setIcon(icon)
+        self.add_product_btn.setFixedWidth(30)
+        product_toolbar.addWidget(self.add_product_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.add_product_btn.pressed.connect(self.add_product)
+        
+        self.product_view = QTableView()
+        product_area.addLayout(product_toolbar) 
+        product_area.addWidget(self.product_view)
+        self.product_view.setModel(self.model_product)
+        
+        # Vùng hiển thị các combo
+        combo_area = QVBoxLayout()
+        combo_toolbar = QHBoxLayout()
+        self.combo_view = QTableView()
+        combo_area.addLayout(combo_toolbar)
+        combo_area.addWidget(self.combo_view)
+        self.combo_view.setModel(self.model_combo)
+
+        # Vùng hiển thị các combo_details
+        combo_detail_area = QVBoxLayout()
+        combo_detail_toolbar = QHBoxLayout()
+        self.combo_details_view = QTableView()
+        combo_detail_area.addLayout(combo_detail_toolbar)
+        combo_detail_area.addWidget(self.combo_details_view)
+        self.combo_details_view.setModel(self.model_combo_detail)
+
+        # Layout chính
+        main_layout = QVBoxLayout()
+        upper_layout = QHBoxLayout()
+        upper_layout.addLayout(product_area)
+        upper_layout.addLayout(combo_area)
+
+        main_layout.addLayout(upper_layout)
+        main_layout.addWidget(self.combo_details_view)
+
+        container = QWidget()
+        container.setLayout(main_layout)
+        self.setCentralWidget(container)
+
+    def add_product(self):
+        self.product_add_dlg = ProductAddDialog(session=self.session)
+        self.product_add_dlg.product_added.connect(self.refresh_product_table)
+        self.product_add_dlg.exec()   
+
+    def refresh_product_table(self):
+        self.product_manager.refresh_model(self.model_product)
+
+class ProductData:
+    def __init__(self, session, column_names : dict):
+        self.session = session
+        self.product_data = None
+        self.column_names= column_names 
+        
+    def query_data(self):
+        product_query = (
+            self.session.query(Product, ProductType)
+            .join(ProductType, Product.product_type_key == ProductType.product_type_key)
+            .all()
+        )
+        return product_query
+    
+    def process_data(self):
+        result = []
+
+        for product_obj, type_obj in self.query_data():
+            result.append({
+                "product_code": product_obj.product_code,
+                "product_name": product_obj.product_name,
+                "product_type_name": type_obj.product_type_name
+            })
+        
+        return result 
+    
+    def create_model(self):
+        processed_data = self.process_data()
+        return UniveralViewModel(
+            data=processed_data,
+            column_names=self.column_names
+        )
+
+    def refresh_model(self, current_model):
+        new_data = self.process_data()
+        current_model.refresh_data(new_data)
+
+class ComboData:
+    def __init__(self, session, column_names: list):
+        self.session = session
+        self.column_names = column_names
+
+    def query_data(self):
+        return (
+            self.session.query(Combo, Variant, ComboVariant)
+            .join(Combo, ComboVariant.combo_key == Combo.combo_key)
+            .join(Variant, ComboVariant.variant_key == Variant.variant_key)
+            .all()
+        )
+
+    def process_data(self):
+        result = []
+        for combo_obj, variant_obj, combo_variant_obj in self.query_data():
+            result.append({
+                "combo_variant_key": combo_variant_obj.combo_variant_key,
+                "combo_name": combo_obj.combo_name,
+                "variant_name": variant_obj.variant_name
+            })
+        return result
+
+    def create_model(self):
+        return UniveralViewModel(data=self.process_data(), column_names=self.column_names)
+
+    def refresh_model(self, current_model):
+        current_model.refresh_data(self.process_data())
+
+
+class ComboDetailData:
+    def __init__(self, session, column_names: list):
+        self.session = session
+        self.column_names = column_names
+
+    def query_data(self):
+        return (
+            self.session.query(ComboDetail, ComboVariant, Combo, Variant, Product, ProductType)
+            .join(ComboVariant, ComboDetail.combo_variant_key == ComboVariant.combo_variant_key)
+            .join(Combo, ComboVariant.combo_key == Combo.combo_key)
+            .join(Variant, ComboVariant.variant_key == Variant.variant_key)
+            .join(Product, ComboDetail.product_key== Product.product_key)
+            .join(ProductType, Product.product_type_key == ProductType.product_type_key)
+            .all()
+        )
+
+    def process_data(self):
+        result = []
+        for detail, cv, combo, variant, product, p_type in self.query_data():
+            result.append({
+                "combo_detail_key": detail.combo_detail_key,
+                "combo_name": combo.combo_name,
+                "variant_name": variant.variant_name,
+                "product_code": product.product_code,
+                "product_name": product.product_name,
+                "product_type_name": p_type.product_type_name,
+                "quantity": detail.quantity
+            })
+        return result
+
+    def create_model(self):
+        return UniveralViewModel(data=self.process_data(), column_names=self.column_names)
+
+    def refresh_model(self, current_model):
+        current_model.refresh_data(self.process_data())
