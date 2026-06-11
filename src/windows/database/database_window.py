@@ -5,7 +5,8 @@ from PySide6.QtGui import QIcon
 from src.models.view_only_model import UniveralViewModel 
 from src.database.model import Product, ProductType, Combo, Variant, ComboVariant, ComboDetail
 from src.windows.dialogs.add_product_items import ProductAddDialog 
-from src.windows.dialogs.add_combo_variant_items import ComboVariantAddDialog 
+from src.windows.dialogs.add_combo_variant_items import ComboVariantAddDialog
+import src.resources.resources_rc
 
 class DatabaseWindow(QMainWindow):
     def __init__(self, session):
@@ -41,13 +42,14 @@ class DatabaseWindow(QMainWindow):
         self.product_add_dlg = None 
         self.combo_variant_add_dlg = None
         self.combo_detail_add_dlg = None
-        
-        icon = QIcon(r"D:\Projects\order-processing-app\src\static\list-plus.png")
+
+        # Icon
+        list_plus_icon = QIcon(":/my_icons/icons/list-plus.svg")
 
         product_area = QVBoxLayout()
         product_toolbar = QHBoxLayout()
         self.add_product_btn = QPushButton()
-        self.add_product_btn.setIcon(icon)
+        self.add_product_btn.setIcon(list_plus_icon)
         self.add_product_btn.setFixedWidth(30)
         product_toolbar.addWidget(self.add_product_btn, alignment=Qt.AlignmentFlag.AlignLeft)
         self.add_product_btn.pressed.connect(self.add_product)
@@ -61,7 +63,7 @@ class DatabaseWindow(QMainWindow):
         combo_area = QVBoxLayout()
         combo_toolbar = QHBoxLayout()
         self.add_combo_variant_btn = QPushButton()
-        self.add_combo_variant_btn.setIcon(icon)
+        self.add_combo_variant_btn.setIcon(list_plus_icon)
         self.add_combo_variant_btn.setFixedWidth(30)
         combo_toolbar.addWidget(self.add_combo_variant_btn, alignment=Qt.AlignmentFlag.AlignLeft)
         self.add_combo_variant_btn.pressed.connect(self.add_combo_variant)

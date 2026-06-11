@@ -3,7 +3,8 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
 # Import model hiển thị vạn năng của bạn để nuôi 2 cái bảng TableView nhỏ này
-from src.models.view_only_model import UniveralViewModel 
+from src.models.view_only_model import UniveralViewModel
+import src.resources.resources_rc
 
 class ComboVariantAddDialog(QDialog):
     def __init__(self, session, combos: list, variants: list, parent=None):
@@ -22,7 +23,7 @@ class ComboVariantAddDialog(QDialog):
         self.setMinimumWidth(1300) 
         self.setMinimumHeight(550)
 
-        plus_icon = QIcon(r"D:\Projects\order-processing-app\src\static\plus.png")
+        plus_icon = QIcon(":/my_icons/icons/plus.svg")
 
         self.combo_add_btn = QPushButton()
         self.combo_add_btn.setIcon(plus_icon)

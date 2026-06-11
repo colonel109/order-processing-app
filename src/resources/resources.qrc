@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="my_icons">
+    <file>icons/list-plus.svg</file>
+    <file>icons/plus.svg</file>
+</qresource>
+</RCC>

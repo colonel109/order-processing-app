@@ -1,0 +1,91 @@
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 6.11.1
+# WARNING! All changes made in this file will be lost!
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x01O\
+<\
+svg xmlns=\x22http:\
+//www.w3.org/200\
+0/svg\x22 width=\x2224\
+\x22 height=\x2224\x22 vi\
+ewBox=\x220 0 24 24\
+\x22 fill=\x22none\x22 st\
+roke=\x22#ffffff\x22 s\
+troke-width=\x222\x22 \
+stroke-linecap=\x22\
+round\x22 stroke-li\
+nejoin=\x22round\x22 c\
+lass=\x22lucide luc\
+ide-list-plus-ic\
+on lucide-list-p\
+lus\x22><path d=\x22M1\
+6 5H3\x22/><path d=\
+\x22M11 12H3\x22/><pat\
+h d=\x22M16 19H3\x22/>\
+<path d=\x22M18 9v6\
+\x22/><path d=\x22M21 \
+12h-6\x22/></svg>\
+\x00\x00\x01\x0a\
+<\
+svg xmlns=\x22http:\
+//www.w3.org/200\
+0/svg\x22 width=\x2224\
+\x22 height=\x2224\x22 vi\
+ewBox=\x220 0 24 24\
+\x22 fill=\x22none\x22 st\
+roke=\x22#ffffff\x22 s\
+troke-width=\x222\x22 \
+stroke-linecap=\x22\
+round\x22 stroke-li\
+nejoin=\x22round\x22 c\
+lass=\x22lucide luc\
+ide-plus-icon lu\
+cide-plus\x22><path\
+ d=\x22M5 12h14\x22/><\
+path d=\x22M12 5v14\
+\x22/></svg>\
+"
+
+qt_resource_name = b"\
+\x00\x08\
+\x0f_\xac\xd3\
+\x00m\
+\x00y\x00_\x00i\x00c\x00o\x00n\x00s\
+\x00\x05\
+\x00o\xa6S\
+\x00i\
+\x00c\x00o\x00n\x00s\
+\x00\x0d\
+\x05\xd2\xb3\xe7\
+\x00l\
+\x00i\x00s\x00t\x00-\x00p\x00l\x00u\x00s\x00.\x00s\x00v\x00g\
+\x00\x08\
+\x03\xc6T'\
+\x00p\
+\x00l\x00u\x00s\x00.\x00s\x00v\x00g\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x16\x00\x02\x00\x00\x00\x02\x00\x00\x00\x03\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00F\x00\x00\x00\x00\x00\x01\x00\x00\x01S\
+\x00\x00\x01\x9e\xb7WC\xb1\
+\x00\x00\x00&\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x9e\xb7W#\xb1\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
