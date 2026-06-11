@@ -1,4 +1,4 @@
 Dialog của bảng product cần chỉnh sửa lại điều kiện lưu: Đã strip chuỗi text nhưng database vẫn chấp nhận chuỗi rỗng, cần điều kiện khắt khe hơn
 Làm mờ nút Lưu khi vừa mở dialog, sau khi dữ liệu nhập vào đủ điều kiện mới chấp nhận ghi vào database.
-
+Các nút Ok và Cancel trong các dialog vẫn chưa hoàn thiện, cần xem xét lại logic làm mới model. Hiện tại đang sử dụng phương pháp làm mới view mỗi lần add sản phẩm, cân nhắc thay thế bằng phương pháp làm mới sau khi đóng dialog để đơn giản hoá đoạn code
 Chưa hoàn thành phần thêm combo vào database

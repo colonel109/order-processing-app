@@ -4,7 +4,8 @@ from PySide6.QtGui import QIcon
 
 from src.models.view_only_model import UniveralViewModel 
 from src.database.model import Product, ProductType, Combo, Variant, ComboVariant, ComboDetail
-from src.windows.dialogs.add_product_items import ProductAddDialog, ComboVariantAddDialog 
+from src.windows.dialogs.add_product_items import ProductAddDialog 
+from src.windows.dialogs.add_combo_variant_items import ComboVariantAddDialog 
 
 class DatabaseWindow(QMainWindow):
     def __init__(self, session):
