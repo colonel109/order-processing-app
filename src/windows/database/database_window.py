@@ -13,7 +13,7 @@ class DatabaseWindow(QMainWindow):
         self.session = session
 
         self.setWindowTitle("Cơ sở dữ liệu")
-        self.setMinimumSize(QSize(900, 600))
+        self.setMinimumSize(QSize(1300, 600))
 
         # Quản lí data  
         self.product_manager = ProductData(
@@ -28,7 +28,7 @@ class DatabaseWindow(QMainWindow):
         
         self.combo_detail_manager = ComboDetailData(
             session=self.session,
-            column_names=["combo_detail_key", "combo_name", "variant_name", "product_code", "product_name", "product_type_name", "quantity"]
+            column_names=["combo_detail_key", "combo_name", "variant_name", "combo_composition_key", "product_code", "product_name", "product_type_name", "product_price", "product_quantity"]
         )
 
         # Tạo data model với các data manager
@@ -217,44 +217,6 @@ class ComboDetailData:
             .join(ComboVariant, ComboDetail.combo_variant_key == ComboVariant.combo_variant_key)
             .join(Combo, ComboVariant.combo_key == Combo.combo_key)
             .join(Variant, ComboVariant.variant_key == Variant.variant_key)
-            .join(Product, ComboDetail.product_code == Product.product_code) 
-            .join(ProductType, Product.product_type_key == ProductType.product_type_key)
-            .all()
-        )
-
-    def process_data(self):
-        result = []
-        # Đã thêm đối tượng `cv` (ComboVariant) nhận diện đủ 6 trường dữ liệu unpack từ query_data
-        for detail, cv, combo, variant, product, p_type in self.query_data():
-            result.append({
-                "combo_detail_key": detail.combo_detail_key,
-                "combo_name": combo.combo_name,
-                "variant_name": variant.variant_name,
-                "product_code": product.product_code,
-                "product_name": product.product_name,
-                "product_type_name": p_type.product_type_name,
-                "quantity": detail.quantity
-            })
-        return result
-
-    def create_model(self):
-        return UniveralViewModel(data=self.process_data(), column_names=self.column_names)
-
-    def refresh_model(self, current_model):
-        current_model.refresh_data(self.process_data())
-
-
-class ComboDetailData:
-    def __init__(self, session, column_names: list):
-        self.session = session
-        self.column_names = column_names
-
-    def query_data(self):
-        return (
-            self.session.query(ComboDetail, ComboVariant, Combo, Variant, Product, ProductType)
-            .join(ComboVariant, ComboDetail.combo_variant_key == ComboVariant.combo_variant_key)
-            .join(Combo, ComboVariant.combo_key == Combo.combo_key)
-            .join(Variant, ComboVariant.variant_key == Variant.variant_key)
             .join(Product, ComboDetail.product_key== Product.product_key)
             .join(ProductType, Product.product_type_key == ProductType.product_type_key)
             .all()
@@ -262,15 +224,17 @@ class ComboDetailData:
 
     def process_data(self):
         result = []
-        for detail, combo, variant, product, p_type in self.query_data():
+        for detail, combo_variant, combo, variant, product, p_type in self.query_data():
             result.append({
                 "combo_detail_key": detail.combo_detail_key,
                 "combo_name": combo.combo_name,
                 "variant_name": variant.variant_name,
+                "combo_composition_key": detail.combo_composition_key, 
                 "product_code": product.product_code,
                 "product_name": product.product_name,
                 "product_type_name": p_type.product_type_name,
-                "quantity": detail.quantity
+                "product_price": detail.product_price,
+                "product_quantity": detail.product_quantity
             })
         return result
 
