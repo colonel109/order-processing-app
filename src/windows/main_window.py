@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PySide6.QtWidgets import QWidget, QMainWindow, QFileDialog, QTableView, QVBoxLayout, QStatusBar, QToolBar, QAbstractItemView
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QIcon
 from PySide6.QtCore import QSize
 from PySide6.QtSql import QSqlTableModel
 
@@ -10,7 +10,7 @@ from src.config_loader import ConfigLoader
 from src.database.connector import connector
 from src.execute_query import execute_query
 from src.windows.database.database_window import DatabaseWindow
-
+import src.resources.resources_rc
 
 class MainWindow(QMainWindow):
     def __init__(self, db_path, base_dir):
@@ -40,21 +40,37 @@ class MainWindow(QMainWindow):
         data_menu = menu.addMenu("Cơ sở dữ liệu")
 
         # Nút mở đơn hàng
-        self.open_file_act = QAction("Mở tệp đơn hàng", self)
+        self.open_file_act = QAction(
+            QIcon(":/my_icons/icons/file.svg"),
+            "Mở tệp đơn hàng",
+            self
+        )
         self.open_file_act.setStatusTip("Mở một (hoặc nhiều) tệp chứa đơn hàng và nạp tất cả vào cơ sở dữ liệu")
         file_menu.addAction(self.open_file_act)
 
         # Nút mở thư mục chứa đơn hàng
-        self.open_folder_act = QAction("Mở thư mục đơn hàng", self)
+        self.open_folder_act = QAction(
+            QIcon(":/my_icons/icons/folder.svg"),
+            "Mở thư mục đơn hàng",
+            self
+        )
         self.open_folder_act.setStatusTip("Mở thư mục chứa đơn hàng và nạp tất cả vào cơ sở dữ liệu")
         file_menu.addAction(self.open_folder_act)
 
         # Nút mở file cấu hình
-        self.open_config_act = QAction("Mở file cấu hình", self)
+        self.open_config_act = QAction(
+            QIcon(":/my_icons/icons/file-braces-corner.svg"),
+            "Mở file cấu hình",
+            self
+        )
         file_menu.addAction(self.open_config_act)
 
         # Nút mở cơ sở dữ liệu
-        self.open_database_act = QAction("Mở cơ sở dữ liệu", self)
+        self.open_database_act = QAction(
+            QIcon(":/my_icons/icons/database-search.svg"),
+            "Mở cơ sở dữ liệu",
+            self
+        )
         data_menu.addAction(self.open_database_act)
 
         # Bảng hiển thị đơn hàng
