@@ -7,20 +7,26 @@ from src.models.view_only_model import UniveralViewModel
 import src.resources.resources_rc
 
 class ComboVariantAddDialog(QDialog):
-    def __init__(self, session, combos: list, variants: list, parent=None):
+    def __init__(self, session, added_combo_variant: set, combos: list, variants: list, parent=None):
         super().__init__(parent)
 
         # Thiết lập session để fetch data
         self.session = session 
-        
+
+        # Lưu trữ lại các thông tin được lấy từ database
+        self.added_combo_variant = added_combo_variant
         self.available_combos = combos
         self.available_variants = variants
 
+        # Tạo 2 biến lưu lại key mà người dùng chọn để lưu vào database
         self.selected_combo_key = None
         self.selected_variant_key = None
-        
+
+        # Tạo biến lưu các cặp combo - variant đang chọn để so sánh
+        self.current_selected_pair = (self.selected_combo_key, self.selected_variant_key)
+
         self.setWindowTitle("Thêm nhóm combo mới")
-        self.setMinimumWidth(1300) 
+        self.setMinimumWidth(1300)
         self.setMinimumHeight(550)
 
         plus_icon = QIcon(":/my_icons/icons/plus.svg")
@@ -84,6 +90,9 @@ class ComboVariantAddDialog(QDialog):
         result_layout.addWidget(QLabel("Cặp combo và loại combo được chọn:"))
         result_layout.addWidget(self.combo_displayer)
         result_layout.addWidget(self.variant_displayer)
+        self.cv_dup_indicator = QLabel()
+        self.cv_dup_indicator.setVisible(False)
+        result_layout.addWidget(self.cv_dup_indicator)
 
         cfm_buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         self.button_box = QDialogButtonBox(cfm_buttons)
@@ -100,9 +109,23 @@ class ComboVariantAddDialog(QDialog):
     
     def init_signal(self):
         self.combo_list_view.clicked.connect(self.show_selected_combo)
+        self.combo_list_view.clicked.connect(self.duplicated_cv_indicator)
         self.variant_list_view.clicked.connect(self.show_selected_variant)
+        self.variant_list_view.clicked.connect(self.duplicated_cv_indicator)
         self.combo_filter.textChanged.connect(self.combo_filter_refresh_view)
-        self.variant_filter.textChanged.connect(self.variant_filter_refresh_view) 
+        self.variant_filter.textChanged.connect(self.variant_filter_refresh_view)
+
+    def duplicated_cv_indicator(self):
+        current_pair = (self.selected_combo_key, self.selected_variant_key)
+        if current_pair in self.added_combo_variant:
+            self.cv_dup_indicator.setVisible(True)
+            self.cv_dup_indicator.setText(f"<b>\u274c Combo này đã được tạo trong cơ sở dữ liệu</b>")
+        elif not self.selected_combo_key:
+            self.cv_dup_indicator.setVisible(True)
+            self.cv_dup_indicator.setText(f"<b>\u274c Tên combo không được để trống!</b>")
+        else:
+            self.cv_dup_indicator.setVisible(True )
+            self.cv_dup_indicator.setText(f"<b>\u2705 Có thể tạo combo này!</b>")
 
     def combo_filter_refresh_view(self, text):
         search_text = text.strip().lower()
@@ -135,7 +158,7 @@ class ComboVariantAddDialog(QDialog):
         else:
             self.selected_combo_key = clicked_key
             name = selected_combo.get("combo_name")
-            self.combo_displayer.setText(f"<b><span style='color: green'> Combo được chọn: </span></b> {name}")
+            self.combo_displayer.setText(f"<b><span style='color: green'>Tên combo: </span></b> {name}")
 
     def show_selected_variant(self, index):
         index_num = index.row()
@@ -151,4 +174,4 @@ class ComboVariantAddDialog(QDialog):
         else:
             self.selected_variant_key = clicked_key
             name = selected_variant.get("variant_name")
-            self.variant_displayer.setText(f"<b><span style='color: green'>Phân loại được chọn:</span></b> {name}")
+            self.variant_displayer.setText(f"<b><span style='color: green'>Phân loại combo:</span></b> {name}")

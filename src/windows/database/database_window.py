@@ -23,7 +23,7 @@ class DatabaseWindow(QMainWindow):
             column_names=["product_code", "product_name", "product_type_name"]
         )
 
-        self.combo_manager = ComboData(
+        self.combo_variant_manager = ComboVariantData(
             session=self.session,
             column_names=["combo_variant_key", "combo_name", "variant_name"]
         )
@@ -35,7 +35,7 @@ class DatabaseWindow(QMainWindow):
 
         # Tạo data model với các data manager
         self.model_product = self.product_manager.create_model()
-        self.model_combo_variant = self.combo_manager.create_model()
+        self.model_combo_variant = self.combo_variant_manager.create_model()
         self.model_combo_detail = self.combo_detail_manager.create_model()
 
         # Dialogs
@@ -114,9 +114,10 @@ class DatabaseWindow(QMainWindow):
     
     def add_combo_variant(self):
         self.combo_variant_add_dlg = ComboVariantAddDialog(
-            session=self.session, 
-            combos=self.combo_manager._unique_combo,
-            variants=self.combo_manager._unique_variant
+            session=self.session,
+            added_combo_variant=self.combo_variant_manager.added_combo_variant,
+            combos=self.combo_variant_manager._unique_combo,
+            variants=self.combo_variant_manager._unique_variant
         )
 
         self.combo_variant_add_dlg.exec()
@@ -161,14 +162,15 @@ class ProductData:
         new_data = self.process_data()
         current_model.refresh_data(new_data)
 
-class ComboData:
+class ComboVariantData:
     def __init__(self, session, column_names: list):
         self.session = session
         self.column_names = column_names
         
         # Biến lưu trữ danh sách phẳng Dict sau khi chế biến để truyền sang Dialog
         self._unique_combo = [] 
-        self._unique_variant = [] 
+        self._unique_variant = []
+        self.added_combo_variant = []
 
     def query_data(self):
         return (
@@ -177,7 +179,10 @@ class ComboData:
             .join(Variant, ComboVariant.variant_key == Variant.variant_key)
             .all()
         )
-    
+
+    def update_added_pairs(self):
+        return self.session.query(ComboVariant.combo_key, ComboVariant.variant_key).all()
+
     def query_unique_combos(self):
         """Chỉ query duy nhất bảng Combo từ DB"""
         return self.session.query(Combo).all()
@@ -190,6 +195,8 @@ class ComboData:
         # 1. Làm sạch bộ đệm cũ trước khi nạp mới (Tránh trùng lặp khi bấm refresh)
         self._unique_combo.clear()
         self._unique_variant.clear()
+
+        self.added_combo_variant =  self.update_added_pairs()
 
         # 2. Chế biến dữ liệu sạch cho Combo
         for combo in self.query_unique_combos():
