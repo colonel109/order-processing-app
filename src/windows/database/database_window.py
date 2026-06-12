@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QTableView, QVBoxLayout, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QMainWindow, QWidget, QTableView, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 
@@ -35,7 +35,7 @@ class DatabaseWindow(QMainWindow):
 
         # Tạo data model với các data manager
         self.model_product = self.product_manager.create_model()
-        self.model_combo = self.combo_manager.create_model()      
+        self.model_combo_variant = self.combo_manager.create_model()
         self.model_combo_detail = self.combo_detail_manager.create_model()
 
         # Dialogs
@@ -47,48 +47,61 @@ class DatabaseWindow(QMainWindow):
         list_plus_icon = QIcon(":/my_icons/icons/list-plus.svg")
 
         product_area = QVBoxLayout()
-        product_toolbar = QHBoxLayout()
+        product_header = QHBoxLayout()
+        product_header.addWidget(QLabel("<b>Sản phẩm</b>"), alignment=Qt.AlignmentFlag.AlignLeft)
         self.add_product_btn = QPushButton()
         self.add_product_btn.setIcon(list_plus_icon)
         self.add_product_btn.setFixedWidth(30)
-        product_toolbar.addWidget(self.add_product_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        product_header.addWidget(self.add_product_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.add_product_btn.pressed.connect(self.add_product)
         
         self.product_view = QTableView()
-        product_area.addLayout(product_toolbar) 
+        product_area.addLayout(product_header)
         product_area.addWidget(self.product_view)
         self.product_view.setModel(self.model_product)
         
         # Vùng hiển thị các combo
-        combo_area = QVBoxLayout()
-        combo_toolbar = QHBoxLayout()
+        combo_variant_area = QVBoxLayout()
+        combo_variant_header = QHBoxLayout()
+        combo_variant_header.addWidget(QLabel("<b>Combo</b>"), alignment=Qt.AlignmentFlag.AlignLeft)
         self.add_combo_variant_btn = QPushButton()
         self.add_combo_variant_btn.setIcon(list_plus_icon)
         self.add_combo_variant_btn.setFixedWidth(30)
-        combo_toolbar.addWidget(self.add_combo_variant_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        combo_variant_header.addWidget(self.add_combo_variant_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.add_combo_variant_btn.pressed.connect(self.add_combo_variant)
         
         self.combo_view = QTableView()
-        combo_area.addLayout(combo_toolbar)
-        combo_area.addWidget(self.combo_view)
-        self.combo_view.setModel(self.model_combo)
+        combo_variant_area.addLayout(combo_variant_header)
+        combo_variant_area.addWidget(self.combo_view)
+        self.combo_view.setModel(self.model_combo_variant)
 
-        # Vùng hiển thị các combo_details
+        # Vùng hiển thị các combo
         combo_detail_area = QVBoxLayout()
-        combo_detail_toolbar = QHBoxLayout()
-        self.combo_details_view = QTableView()
-        combo_detail_area.addLayout(combo_detail_toolbar)
-        combo_detail_area.addWidget(self.combo_details_view)
-        self.combo_details_view.setModel(self.model_combo_detail)
+        self.add_combo_detail_btn = QPushButton()
+        self.add_combo_detail_btn.setIcon(list_plus_icon)
+        self.add_combo_detail_btn.setFixedWidth(30)
+
+        combo_detail_header = QHBoxLayout()
+        combo_detail_header.addWidget(QLabel("<b>Chi tiết combo</b>"), alignment=Qt.AlignmentFlag.AlignLeft)
+        combo_detail_header.addWidget(self.add_combo_detail_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        # self.add_combo_detail_btn.pressed.connect(self.add_combo_variant)
+
+        self.combo_detail_view = QTableView()
+        combo_detail_area.addLayout(combo_detail_header)
+        combo_detail_area.addWidget(self.combo_detail_view)
+        self.combo_detail_view.setModel(self.model_combo_detail)
 
         # Layout chính
         main_layout = QVBoxLayout()
         upper_layout = QHBoxLayout()
         upper_layout.addLayout(product_area)
-        upper_layout.addLayout(combo_area)
+        upper_layout.addLayout(combo_variant_area)
+
+        lower_layout = QHBoxLayout()
+        lower_layout.addLayout(combo_detail_area)
 
         main_layout.addLayout(upper_layout)
-        main_layout.addWidget(self.combo_details_view)
+        main_layout.addLayout(lower_layout)
 
         container = QWidget()
         container.setLayout(main_layout)
